@@ -24,7 +24,7 @@ CSV files (UC Volume: /Volumes/neobank/neobank/neobank/raw)
 
 | Notebook | Purpose |
 | --- | --- |
-| `01_Create_Banking_Tables` | Creates the `neobank.banking` schema with reference DDL (branches, customers, accounts, transactions) |
+| `01_Create_Banking_Tables` | Optional: recreates the reference DDL schema `neobank.banking` (branches, customers, accounts, transactions). That schema has been dropped — nothing in the pipeline depends on it; it now serves only as a data dictionary of the intended data model |
 | `02_Bronze_Ingestion` | Batch ingest of raw CSVs from the UC volume into `neobank.bronze` (full overwrite) |
 | `03_Silver_transform` | Cleansing (trim/casing), null filtering, and deduplication by primary key; writes `neobank.silver` |
 | `04_Gold_Reports` | Builds gold tables: `branch_performance`, `customer_360`, `risk_customer_summary`, `daily_bank_kpi` |
@@ -59,12 +59,12 @@ CSV files (UC Volume: /Volumes/neobank/neobank/neobank/raw)
   * `risk_customer_summary` — customer counts, average credit score, active loans, and overdue amounts per risk grade
   * `daily_bank_kpi` — daily transaction totals cross-joined with bank-wide KPIs
 * `neobank.metadata` — ingestion control table (`table_name`, `source_path`, `bronze_schema`, `source_system`, `active_flag`, `load_order`)
-* `neobank.banking` — reference DDL schema from notebook 01
+* `neobank.banking` — reference DDL schema from notebook 01 (**dropped**; optional to recreate via notebook 01)
 
 ## How to Run
 
 1. Upload raw CSVs to `/Volumes/neobank/neobank/neobank/raw/<table>/`.
-2. Run `01_Create_Banking_Tables` (one-time, creates reference schema).
+2. *(Optional)* Run `01_Create_Banking_Tables` to recreate the dropped `neobank.banking` reference schema.
 3. Run `05_Setting_up_metadata` to register sources in the metadata control table.
 4. Run `06_bronze_autoloader` → incremental bronze ingest (Auto Loader, AvailableNow trigger).
 5. Run `07_silver_metadata` (or `03_Silver_transform` for the batch variant) → silver.
